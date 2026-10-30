@@ -4,7 +4,7 @@ Code and data generators for **The Retail Data Science Playbook** by Shaon Biswa
 
 The book is free to download at **[imshaon.com](https://imshaon.com)**.
 
-Every number in the book's case studies and in the Part I model contest is produced by this repository. The data are synthetic, generated with fixed seeds, so running the code reproduces the printed tables and charts exactly with the pinned library versions.
+Every number in the book's case studies and in the Part I model contest is produced by this repository. The data are synthetic, generated with fixed seeds, so running the code with the pinned library versions reproduces the printed tables and charts (see the note on ETS below).
 
 ## Quick start
 
@@ -17,6 +17,8 @@ python run_all.py            # about 4 minutes on a laptop
 ```
 
 Run one chapter with `python run_all.py ch09`, or open the matching notebook in `notebooks/`.
+
+**Note:** ETS (Holt-Winters) results in Chapters 6 and 8, and the order of near-tied rules in Chapter 13, can differ in the first decimal place across operating systems because of the optimiser. On Linux (as in the GitHub Action) all other results match exactly; on Apple Silicon Macs the Chapter 7 tree-model scores can also differ in the third decimal place.
 
 ## Case studies
 
