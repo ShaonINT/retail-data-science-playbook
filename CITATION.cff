@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this code or the book, please cite it as below."
+title: "The Retail Data Science Playbook: companion code"
+authors:
+  - family-names: Biswas
+    given-names: Shaon
+    orcid: "https://orcid.org/0000-0002-3085-2517"
+version: "1.0.0"
+date-released: "2026-11-01"
+license: MIT
+repository-code: "https://github.com/ShaonINT/retail-data-science-playbook"
+url: "https://imshaon.com"
+keywords: [retail analytics, forecasting, pricing, causal inference, uplift modelling, data science]
+preferred-citation:
+  type: book
+  title: "The Retail Data Science Playbook: How to build, evaluate and choose models for pricing, forecasting, promotions, inventory and customers"
+  authors:
+    - family-names: Biswas
+      given-names: Shaon
+      orcid: "https://orcid.org/0000-0002-3085-2517"
+  year: 2026
+  edition: "First edition"
+  url: "https://imshaon.com"

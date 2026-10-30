@@ -1,0 +1,64 @@
+{
+ "baskets": 60000,
+ "rules": [
+  {
+   "antecedent": "nappies",
+   "consequent": "baby wipes",
+   "support": 0.037,
+   "confidence": 0.595,
+   "lift": 9.882
+  },
+  {
+   "antecedent": "tonic",
+   "consequent": "gin",
+   "support": 0.033,
+   "confidence": 0.538,
+   "lift": 8.736
+  },
+  {
+   "antecedent": "lager",
+   "consequent": "tonic",
+   "support": 0.04,
+   "confidence": 0.461,
+   "lift": 7.616
+  },
+  {
+   "antecedent": "gin",
+   "consequent": "lager",
+   "support": 0.041,
+   "confidence": 0.658,
+   "lift": 7.53
+  },
+  {
+   "antecedent": "tonic",
+   "consequent": "crisps",
+   "support": 0.044,
+   "confidence": 0.729,
+   "lift": 6.841
+  },
+  {
+   "antecedent": "gin",
+   "consequent": "crisps",
+   "support": 0.045,
+   "confidence": 0.722,
+   "lift": 6.776
+  },
+  {
+   "antecedent": "curry paste",
+   "consequent": "naan",
+   "support": 0.017,
+   "confidence": 0.339,
+   "lift": 6.712
+  },
+  {
+   "antecedent": "naan",
+   "consequent": "coconut milk",
+   "support": 0.017,
+   "confidence": 0.329,
+   "lift": 6.625
+  }
+ ],
+ "recall5_pop": 0.4446,
+ "recall5_co": 0.8083,
+ "test": 10000
+}

@@ -1,0 +1,32 @@
+{
+ "now": {
+  "Brightwell's High St": 264413.37203277566,
+  "Brightwell's Retail Park": 346869.4989293174,
+  "Discounter": 386408.5407424735,
+  "Big Four superstore": 452800.67651543545
+ },
+ "Site A (Mill Lane)": {
+  "new_store": 265109.6720846924,
+  "cannibal": 112706.51002570195,
+  "net_gain": 152403.16205899045,
+  "after": {
+   "Brightwell's High St": 202165.43589200993,
+   "Brightwell's Retail Park": 296410.9250443813,
+   "Discounter": 292891.36765380565,
+   "Big Four superstore": 393914.6875451129,
+   "Site A (Mill Lane)": 265109.6720846924
+  }
+ },
+ "Site B (Eastgate)": {
+  "new_store": 187644.95182672565,
+  "cannibal": 82443.44921665394,
+  "net_gain": 105201.50261007168,
+  "after": {
+   "Brightwell's High St": 235040.58775206274,
+   "Brightwell's Retail Park": 293798.83399337647,
+   "Discounter": 320621.3881750364,
+   "Big Four superstore": 413386.3264728008,
+   "Site B (Eastgate)": 187644.95182672565
+  }
+ }
+}

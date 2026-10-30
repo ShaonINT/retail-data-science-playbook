@@ -1,0 +1,51 @@
+"""Chapter 9: elasticity of own-label coffee - naive OLS vs controls vs double ML (grouped cross-fitting).
+
+Part of the companion code for The Retail Data Science Playbook (Shaon Biswas, 2026).
+All data are synthetic and generated below with a fixed seed. Run from the repository root:
+    python case_studies/ch09_coffee_pricing.py
+"""
+import sys, os; sys.path.insert(0, os.path.dirname(__file__))
+from common import *
+import pandas as pd, statsmodels.formula.api as smf, lightgbm as lgb
+from sklearn.model_selection import GroupKFold
+rng=np.random.default_rng(9); nS,nW=60,156; true_e=-1.8; cost=2.40
+rows=[]
+store_lvl=rng.lognormal(3.2,.35,nS)
+for w in range(nW):
+    xmas=1 if (w%52) in range(47,52) else 0
+    season=1+0.12*np.cos(2*np.pi*(w%52-50)/52)
+    for s in range(nS):
+        # trading team discounts at Christmas and when demand is high, and promos come with a gondola-end display
+        promo=rng.random()<(0.10+0.35*xmas)
+        disp=1 if (promo and rng.random()<0.8) else 0
+        base_p=4.50 if w<78 else 4.75
+        price=base_p*(0.67 if promo else rng.choice([1,1,1,0.95,1.05]))
+        mu=store_lvl[s]*season*(1+0.25*xmas)*np.exp(true_e*np.log(price/4.5))*(1+0.45*disp)
+        rows.append(dict(store=s,week=w,woy=w%52,xmas=xmas,promo=int(promo),display=disp,price=price,units=rng.poisson(mu*rng.gamma(20,1/20))))
+df=pd.DataFrame(rows);df['lp']=np.log(df.price);df['lq']=np.log(df.units+1)
+naive=smf.ols('lq ~ lp',df).fit()
+ctrl=smf.ols('lq ~ lp + display + C(woy) + C(store)',df).fit()
+# double ML with LightGBM nuisance models, cross-fitted
+X=pd.get_dummies(df[['store','woy','xmas','display']].astype({'store':str}),columns=['store'],dtype=float);yv=df.lq.values;dv=df.lp.values
+ry=np.zeros(len(df));rd=np.zeros(len(df))
+for tr,te in GroupKFold(5).split(X,groups=df.store):   # cross-fit by store, not by random rows
+    my=lgb.LGBMRegressor(n_estimators=300,learning_rate=.05,verbose=-1).fit(X.iloc[tr],yv[tr]);md=lgb.LGBMRegressor(n_estimators=300,learning_rate=.05,verbose=-1).fit(X.iloc[tr],dv[tr])
+    ry[te]=yv[te]-my.predict(X.iloc[te]);rd[te]=dv[te]-md.predict(X.iloc[te])
+theta=np.sum(rd*ry)/np.sum(rd*rd);eps=ry-theta*rd;se=np.sqrt(np.sum(rd**2*eps**2))/np.sum(rd**2)
+def popt(e): return cost*e/(1+e)
+out=dict(true_e=true_e,cost=cost,naive_e=naive.params['lp'],naive_ci=list(naive.conf_int().loc['lp']),ctrl_e=ctrl.params['lp'],ctrl_ci=list(ctrl.conf_int().loc['lp']),
+ dml_e=theta,dml_ci=[theta-1.96*se,theta+1.96*se],p_naive=popt(naive.params['lp']),p_ctrl=popt(ctrl.params['lp']),p_dml=popt(theta),rows=len(df),
+ promo_share=df.promo.mean(),xmas_promo_share=df[df.xmas==1].promo.mean())
+# profit curve per store-week at regular weeks, using DML elasticity
+P=np.linspace(3.5,7.5,200);q0=df[(df.promo==0)&(df.xmas==0)&(df.week>=78)].units.mean()
+prof=lambda e:(P-cost)*q0*(P/4.75)**e
+out['profit_now']=float((4.75-cost)*q0);out['profit_at_499']=float((4.99-cost)*q0*(4.99/4.75)**theta);out['profit_at_naive']=float((popt(naive.params['lp'])-cost)*q0*(popt(naive.params['lp'])/4.75)**theta)
+out['profit_at_opt']=float((popt(theta)-cost)*q0*(popt(theta)/4.75)**theta);out['q0']=float(q0)
+dump('cs9',out);print(json.dumps(out,indent=1,default=float))
+f,(a1,a2)=plt.subplots(1,2,figsize=(5.6,2.6))
+for lab,e,ci,c in [('Naive OLS',out['naive_e'],out['naive_ci'],A),('OLS + controls',out['ctrl_e'],out['ctrl_ci'],B),('Double ML',theta,out['dml_ci'],G)]:
+    y0=['Naive OLS','OLS + controls','Double ML'].index(lab);a1.errorbar(e,y0,xerr=[[e-ci[0]],[ci[1]-e]],fmt='o',color=c,capsize=3)
+a1.axvline(true_e,color=M,ls=':',lw=1);a1.text(true_e+.03,2.35,'true −1.8',fontsize=6.5,color=M);a1.set_yticks([0,1,2]);a1.set_yticklabels(['Naive OLS','OLS + controls','Double ML']);a1.set_ylim(-.6,2.6);a1.set_xlabel('Estimated elasticity');a1.set_title('Elasticity estimates')
+a2.plot(P,prof(theta),color=G,lw=1.6,label='profit (DML elasticity)');a2.axvline(4.75,color=GR,ls='--',lw=1);a2.text(4.8,a2.get_ylim()[0] if False else prof(theta).min(),'now £4.75',fontsize=6.5,color=M)
+a2.axvline(popt(naive.params['lp']),color=A,ls=':',lw=1);a2.axvline(popt(theta),color=G,ls=':',lw=1)
+a2.set_xlabel('Shelf price (£)');a2.set_ylabel('Profit per store-week (£)');a2.set_title('Profit curve');save(f,'cs9_price')
